@@ -1,24 +1,20 @@
 #!/usr/bin/python3
-"""Create an API to get todo list for employe"""
+""" Write a Python script that, using this REST API,
+for a given employee ID, returns information about
+his/her TODO list progress. """
 
 import requests
-from sys import argv
-
-url_base = "https://jsonplaceholder.typicode.com/users/"
-
+import sys
 
 if __name__ == "__main__":
-    employee = requests.get(url_base + argv[1]).json()
-    todo_list = requests.get(url_base + argv[1] + "/todos/").json()
-    completed_tasks = 0
-    text = ""
+    url = "https://jsonplaceholder.typicode.com"
+    user = requests.get(f"{url}/users/{sys.argv[1]}").json()
+    to_dos = requests.get(f"{url}/todos",
+                          params={"userId": sys.argv[1]}).json()
+    total_tasks = len(to_dos)
+    completed_tasks = sum(1 for to_do in to_dos if to_do["completed"])
 
-    for task in todo_list:
-        if task['completed'] is True:
-            text += "\t {}\n".format(task['title'])
-            completed_tasks += 1
+    print(f"Employee {user.get('name')} is done with tasks\
+({completed_tasks}/{total_tasks}):")
 
-    print("Employee {} is done with tasks({}/20):\n{}"
-          .format(employee['name'],
-                  completed_tasks,
-                  text), end="")
+    [print(f"\t {to_do['title']}") for to_do in to_dos if to_do["completed"]]
